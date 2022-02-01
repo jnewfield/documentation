@@ -1,0 +1,26 @@
+---
+backend:
+  url: https://testenv-backend.westus2.cloudapp.azure.com/api/v1
+  token: 1874ed14e77584f2d95cfcf525da529c1a480368
+
+vault:
+  token: null
+
+projects:
+  - name: indigo
+    repo: https://gitlab+deploy-token-240971:PYj3t7nszQDATVcgeDG5@gitlab.com/f5/nginx/tools/testenv/project-indigo.git
+
+defaults:
+  public_key: ~/.ssh/id_rsa.pub
+
+  cloud: aws
+  project: indigo
+  public_key: ~/.ssh/id_rsa.pub # optional
+
+aws:
+  profile: dev-sandbox-Users-641222230151
+  region: us-west-2  # optional
+
+vsphere:
+  username: _prdblusilversurfer@olympus
+  password: XFF1hHX^tdJ5iS
