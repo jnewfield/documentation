@@ -1,0 +1,6 @@
+# vars from script ~/.testenv/my/vm-cluster.sh
+user1: centos
+user2: centos
+host1: 10.146.189.131
+host2: 10.146.184.150
+host3: 10.146.183.70

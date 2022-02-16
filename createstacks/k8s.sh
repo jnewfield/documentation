@@ -1,5 +1,6 @@
 #!/bin/bash
 # Login
+# --os {amazonlinux-2,centos-7,centos-8,debian-9,debian-10,debian-11,freebsd-13,oracle-7,redhat-7,redhat-8,ubuntu-16.04,ubuntu-18.04,ubuntu-20.04}
 az login
 echo Initiating testenv command...
 testenv stack create vm-cluster \

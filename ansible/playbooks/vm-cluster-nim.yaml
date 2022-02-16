@@ -1,0 +1,19 @@
+---
+- name: Update all vm-cluster nodes
+  hosts: vmclusternodes
+  vars_files:
+    - ~/.testenv/my/ansible/playbooks/group_vars/vmclusternimvars
+  tasks:
+    - name: Update yum and install vim and net-tools
+      become: yes
+      yum:
+        name:
+          - vim
+          - net-tools
+        state: latest
+        update_cache: yes
+    - name: Disable firewall
+      command: "sudo systemctl disable firewalld"
+    - name: Stop firewall
+      command: "sudo systemctl stop firewalld"
+    

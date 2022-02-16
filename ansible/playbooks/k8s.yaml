@@ -1,0 +1,12 @@
+---
+- name: Update all k8s nodes
+  hosts: k8snodes
+  vars_files:
+    - ~/.testenv/my/ansible/playbooks/group_vars/k8svars
+  tasks:
+    - name: Update apt
+      command: "sudo apt update"
+    - name: Install vim
+      command: "sudo apt install vim -y"
+    - name: Create done file 'ls /var/tmp/Update*'
+      command: "touch /var/tmp/UpdatedAll"
