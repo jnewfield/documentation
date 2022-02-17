@@ -14,7 +14,8 @@ testenv stack create nginx-ctrl \
 	--num-datapath-ha-ips 1 \
 	--num-datapaths 4 \
 	--enable-features AppSec \
-	--tag Rivian-22294
+	--tag general
+	--tag cli
 # Get stackid
 stackid=`echo $(cat ~/.testenv/latest_stack_id | tr -d '"')`
 # Store stack symbols
