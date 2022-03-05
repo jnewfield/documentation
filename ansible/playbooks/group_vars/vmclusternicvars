@@ -1,4 +1,6 @@
 # vars from script ~/.testenv/my/vm-cluster.sh
-host1: 10.146.179.23
-host2: 10.146.186.108
-host3: 10.146.184.22
+user1: ubuntu
+user2: ubuntu
+host1: 10.146.189.89
+host2: 10.146.191.46
+host3: 10.146.178.144
