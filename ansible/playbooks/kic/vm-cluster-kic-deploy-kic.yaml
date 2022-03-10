@@ -1,9 +1,9 @@
 ---
 - name: Deploy NGINX, Inc Kubrernetes Ingress Controller
-  hosts: vmclusternodes[0]
+  hosts: vmclusterkicnodes[0]
   vars_files:
     - ~/.ansible/group_vars/ngxvars
-    - ~/.testenv/my/ansible/playbooks/group_vars/vmclusternicvars
+    - /tmp/vmclusterkicvars
   tasks:
     - name: Download Ingress Controller
       shell: |

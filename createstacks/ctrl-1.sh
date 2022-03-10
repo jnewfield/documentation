@@ -1,18 +1,20 @@
 #!/bin/bash
+CTRLOS=ubuntu-20.04
+NGXOS=ubuntu-20.04
 # --os {amazonlinux-2,centos-7,centos-8,debian-9,debian-10,debian-11,freebsd-13,oracle-7,redhat-7,redhat-8,ubuntu-16.04,ubuntu-18.04,ubuntu-20.04}
 # Login
 az login
 echo Initiating testenv command...
 testenv stack create nginx-ctrl \
 	--cloud vsphere \
-	--ctrl-os ubuntu-20.04 \
+	--ctrl-os $CTRLOS \
 	--ctrl-tarball-url release-3-22 \
-	--datapath-os ubuntu-20.04 \
+	--datapath-os $NGXOS \
 	--enable-multinode-ctrl true \
 	--nginxplus-version 25 \
-	--num-ctrl-hosts 3 \
+	--num-ctrl-hosts 1 \
 	--num-datapath-ha-ips 1 \
-	--num-datapaths 4 \
+	--num-datapaths 3 \
 	--enable-features AppSec \
 	--tag general
 	--tag cli

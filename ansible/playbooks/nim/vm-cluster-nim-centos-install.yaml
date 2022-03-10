@@ -1,0 +1,46 @@
+---
+- name: Update all nodes install vim, net-tools, disable swap & firewall, install docker helper packages
+  hosts: testenv
+  vars_files:
+    - /tmp/testenvansiblevars
+  tasks:
+    - name: Install yum-utils
+      become: yes
+      yum:
+        name: yum-utils
+        state: present
+        expire-cache: yes
+    - name: Add clickhouse repo to yum-config-manager
+      shell: sudo yum-config-manager --add-repo https://repo.clickhouse.com/rpm/clickhouse.repo
+    - name: Install clickhouse server and client
+      become: yes
+      yum:
+        name:
+          - clickhouse-server
+          - clickhouse-client
+        state: present
+        expire-cache: yes
+    - name: Update yum repo with nms.repo
+      shell: sudo wget -P /etc/yum.repos.d https://cs.nginx.com/static/files/nms.repo
+    - name: Import to rpmkeys nginx_signing.key
+      shell: |
+        curl -o /tmp/nginx_signing.key https://nginx.org/keys/nginx_signing.key
+        sudo rpmkeys --import /tmp/nginx_signing.key
+    - name: Install NGINX Instance Manager
+      become: yes
+      yum:
+        name: nms-instance-manager
+    - name: Enable nms resources
+      shell: |
+        sudo systemctl enable nms-core
+        sudo systemctl enable nms-dpm
+        sudo systemctl enable nms-ingestion
+        sudo systemctl enable nms
+        htpasswd -b /etc/nms/nginx/.htpasswd admin admin
+    - name: Start the ClickHouse db server
+      shell: sudo systemctl start clickhouse-server
+    - name: Reload NGINX
+      shell: sudo nginx -s reload 
+    - name: Start NGINX Instance Manager
+      shell: sudo systemctl start nms
+

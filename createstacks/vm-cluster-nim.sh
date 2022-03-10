@@ -13,7 +13,7 @@ testenv stack create vm-cluster \
 	--cloud vsphere \
 	--os $NIMOS \
 	--num-hosts $NIMHOSTS \
-	--vsphere-host-disk-size 80 \
+	--vsphere-host-disk-size 100 \
 	--tag cli \
 	--tag nim
 # Get stackid
@@ -42,22 +42,70 @@ done
 stacksymbols2=`testenv stack show symbols $stackid2`
 hostips2=`jq '.host_ips[]' <<< $stacksymbols2 | tr -d '"'`
 vmusername2=`jq '.host_ssh_username' <<< $stacksymbols2 | tr -d '"'`
-# Create host variables for ansible use
-cat <<EOF | tee ~/.testenv/my/ansible/playbooks/group_vars/vmclusternimvars
-# vars from script ~/.testenv/my/vm-cluster.sh
-user1: $vmusername1
-user2: $vmusername2
-host1: $host1
+## ansible for nim nodes
+# Create nim hosts file for ansible use
+cat <<EOF | tee ~/.testenv/my/ansible/playbooks/hosts.yaml
+# nim hosts from script ~/.testenv/my/createstacks/vm-cluster-nim.sh
+testenv:
+  hosts:
 EOF
-i=2
+# Create nim host and username variables for ansible use
+cat <<EOF | tee /tmp/testenvansiblevars
+# nim vars from script ~/.testenv/my/createstacks/vm-cluster-nim.sh
+user: $vmusername1
+EOF
+i=1
+for host in $hostips1
+do
+        echo "host$i: $host" >> /tmp/testenvansiblevars;
+        cat <<EOF | tee -a ~/.testenv/my/ansible/playbooks/hosts.yaml
+    host$i:
+      ansible_host: "{{ host$i }}"
+      ansible_user: "{{ user }}"
+EOF
+        ((i=i+1))
+done
+echo
+# Run ansible playbook ...
+if [[ $NGXOS == *"centos"* ]]; then
+	ansible-playbook ~/.testenv/my/ansible/playbooks/ngx/vm-cluster-ngx-centos-install.yaml
+	ansible-playbook ~/.testenv/my/ansible/playbooks/nim/vm-cluster-nim-centos-install.yaml
+else
+        ansible-playbook ~/.testenv/my/ansible/playbooks/ngx/vm-cluster-ngx-ubuntu-install.yaml
+	ansible-playbook ~/.testenv/my/ansible/playbooks/nim/vm-cluster-nim-ubuntu-install.yaml
+fi
+
+#ansible-playbook ~/.testenv/my/ansible/playbooks/vm-cluster-nim.yaml
+## ansible for ngx nodes
+# Create ngx hosts file for ansible use
+cat <<EOF | tee ~/.testenv/my/ansible/playbooks/hosts.yaml
+# ngx hosts from script ~/.testenv/my/createstacks/vm-cluster-nim.sh
+testenv:
+  hosts:
+EOF
+# Create ngx hosts and username variables for for ansible use
+cat <<EOF | tee /tmp/testenvansiblevars
+# ngx vars from script ~/.testenv/my/createstacks/vm-cluster-nim.sh
+user: $vmusername2
+EOF
+i=1
 for host in $hostips2
 do
-	echo "host$i: $host" >> ~/.testenv/my/ansible/playbooks/group_vars/vmclusternimvars
+        echo "host$i: $host" >> /tmp/testenvansiblevars;
+        cat <<EOF | tee -a ~/.testenv/my/ansible/playbooks/hosts.yaml
+    host$i:
+      ansible_host: "{{ host$i }}"
+      ansible_user: "{{ user }}"
+EOF
         ((i=i+1))
 done
 echo
 # Run ansible playbook to ...
-ansible-playbook ~/.testenv/my/ansible/playbooks/vm-cluster-nim.yaml
+if [[ $NGXOS == *"centos"* ]]; then
+	ansible-playbook ~/.testenv/my/ansible/playbooks/ngx/vm-cluster-ngx-centos-install.yaml
+else
+	ansible-playbook ~/.testenv/my/ansible/playbooks/ngx/vm-cluster-ngx-ubuntu-install.yaml
+fi
 # Print symbols
 echo -e "* Stack-ID1:\n$stackid1\n"
 echo -e "* Host IPs VM1:"

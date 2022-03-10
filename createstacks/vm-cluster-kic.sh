@@ -8,7 +8,6 @@ WHOSTS=2
 # Login
 az login
 echo Initiating testenv command...
-#testenv stack create vm-cluster --cloud vsphere --num-hosts 1 --os centos-7 --vsphere-host-disk-size 80 --tag CreatePID=4215124 --tag gui 
 testenv stack create vm-cluster \
 	--cloud vsphere \
 	--os $MOS \
@@ -43,7 +42,7 @@ stacksymbols2=`testenv stack show symbols $stackid2`
 hostips2=`jq '.host_ips[]' <<< $stacksymbols2 | tr -d '"'`
 vmusername2=`jq '.host_ssh_username' <<< $stacksymbols2 | tr -d '"'`
 # Create host variables for ansible use
-cat <<EOF | tee ~/.testenv/my/ansible/playbooks/group_vars/vmclusternicvars
+cat <<EOF | tee /tmp/vmclusterkicvars
 # vars from script ~/.testenv/my/vm-cluster.sh
 user1: $vmusername1
 user2: $vmusername2
@@ -52,12 +51,13 @@ EOF
 i=2
 for host in $hostips2
 do
-	echo "host$i: $host" >> ~/.testenv/my/ansible/playbooks/group_vars/vmclustervars
+	echo "host$i: $host" >> /tmp/vmclusterkicvars
         ((i=i+1))
 done
 echo
-# Run ansible playbook to install kuberntes
-ansible-playbook ~/.testenv/my/ansible/playbooks/vm-cluster-nic.yaml
+# Run ansible playbook to install kubernetes and ingress controller
+ansible-playbook ~/.testenv/my/ansible/playbooks/kic/vm-cluster-kic-install-k8s.yaml
+ansible-playbook ~/.testenv/my/ansible/playbooks/kic/vm-cluster-kic-deploy-kic.yaml
 # Print symbols
 echo -e "* Stack-ID1:\n$stackid1\n"
 echo -e "* Host IPs VM1:"

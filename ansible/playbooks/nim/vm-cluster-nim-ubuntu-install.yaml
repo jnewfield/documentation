@@ -1,0 +1,43 @@
+---
+- name: Update all nodes install vim, net-tools, disable swap & firewall, install docker helper packages
+  hosts: testenv
+  vars_files:
+    - /tmp/testenvansiblevars
+  tasks:
+    - name: Import clickhouse public key
+      shell: sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 8919F6BD2B48D754
+    - name: Update apt sources list with clickhouse
+      shell: echo "deb https://packages.clickhouse.com/deb stable main/" | sudo tee /etc/apt/sources.list.d/clickhouse.list
+    - name: Install clickhouse sever and client
+      become: yes
+      apt:
+        pkg:
+          - clickhouse-server
+          - clickhouse-client
+        update-cache: yes
+    - name: Add nginx_signing.key to apt
+      shell: |
+        sudo wget https://nginx.org/keys/nginx_signing.key
+        sudo apt-key add nginx_signing.key
+    - name: Update apt sources with NGINX Instance Manager (nms)
+      shell: |
+        printf "deb https://pkgs.nginx.com/nms/ubuntu `lsb_release -cs` nginx-plus\n" | sudo tee /etc/apt/sources.list.d/nms.list
+        sudo wget -q -O /etc/apt/apt.conf.d/90pkgs-nginx https://cs.nginx.com/static/files/90pkgs-nginx
+    - name: Install Nginx Instance Manager
+      become: yes
+      apt:
+        pkg: nms-instance-manager
+        update-cache: yes
+    - name: Enable nms resources
+      shell: |
+        sudo systemctl enable nms-core
+        sudo systemctl enable nms-dpm
+        sudo systemctl enable nms-ingestion
+        sudo systemctl enable nms
+        htpasswd -b /etc/nms/nginx/.htpasswd admin admin
+    - name: Start the ClickHouse db server
+      shell: sudo systemctl start clickhouse-server
+    - name: Reload NGINX
+      shell: sudo nginx -s reload
+    - name: Start NGINX Instance Manager
+      shell: sudo systemctl start nms

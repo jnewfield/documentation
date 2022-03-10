@@ -1,8 +1,8 @@
 ---
 - name: Update all nodes install vim, net-tools, disable swap & firewall, install docker helper packages
-  hosts: vmclusternodes
+  hosts: vmclusterkicnodes
   vars_files:
-    - ~/.testenv/my/ansible/playbooks/group_vars/vmclusternicvars
+    - /tmp/vmclusterkicvars
   tasks:
     - name: Disable swap and firewall
       shell: |
@@ -74,9 +74,9 @@
         executable: /bin/bash
 
 - name: Update master node
-  hosts: vmclusternodes[0]
+  hosts: vmclusterkicnodes[0]
   vars_files:
-    - ~/.testenv/my/ansible/playbooks/group_vars/vmclusternicvars
+    - /tmp/vmclusterkicvars
   tasks:
     - name: change hostname
       shell: |
@@ -86,9 +86,9 @@
         executable: /bin/bash
 
 - name: Update worker1 node
-  hosts: vmclusternodes[1]
+  hosts: vmclusterkicnodes[1]
   vars_files:
-    - ~/.testenv/my/ansible/playbooks/group_vars/vmclusternicvars
+    - /tmp/vmclusterkicvars
   tasks:
     - name: change hostname
       shell: |
@@ -98,9 +98,9 @@
         executable: /bin/bash
 
 - name: Update worker2 node
-  hosts: vmclusternodes[2]  
+  hosts: vmclusterkicnodes[2]  
   vars_files:
-    - ~/.testenv/my/ansible/playbooks/group_vars/vmclusternicvars
+    - /tmp/vmclusterkicvars
   tasks:
     - name: change hostname
       shell: |
@@ -110,9 +110,9 @@
         executable: /bin/bash
 
 - name: Install kubernetes
-  hosts: vmclusternodes
+  hosts: vmclusterkicnodes
   vars_files:
-    - ~/.testenv/my/ansible/playbooks/group_vars/vmclusternicvars
+    - /tmp/vmclusterkicvars
   tasks:
     - name: Load br_filter and set net bridge iptables to 1 in sysclt
       shell: |
@@ -142,9 +142,9 @@
         sudo apt-mark hold kubelet kubeadm kubectl
 
 - name: Initialize kubeadm on master node
-  hosts: vmclusternodes[0]
+  hosts: vmclusterkicnodes[0]
   vars_files:
-    - ~/.testenv/my/ansible/playbooks/group_vars/vmclusternicvars
+    - /tmp/vmclusterkicvars
   tasks:
     - name: Run kubeadmin init command
       shell: sudo kubeadm init --control-plane-endpoint {{ host1 }} --pod-network-cidr=10.244.0.0/16
@@ -178,11 +178,11 @@
       local_action: copy content="{{ kubernetes_join_command.stdout_lines[0] }}" dest="/tmp/kubernetes_join_command" mode=0777
 
 - name: Initialize workers
-  hosts: vmclusternodes[1:]
+  hosts: vmclusterkicnodes[1:]
   become: yes
   gather_facts: yes
   vars_files:
-    - ~/.testenv/my/ansible/playbooks/group_vars/vmclusternicvars
+    - /tmp/vmclusterkicvars
   tasks:
     - name: Copy join command from Ansiblehost to the worker nodes
       become: yes
@@ -202,9 +202,9 @@
         echo 'complete -F __start_kubectl k' >>~/.bashrc
 
 - name: Add worker labels to worker nodes
-  hosts: vmclusternodes[0]
+  hosts: vmclusterkicnodes[0]
   vars_files:
-    - ~/.testenv/my/ansible/playbooks/group_vars/vmclusternicvars
+    - /tmp/vmclusterkicvars
   tasks:
     - name: add worker label to worker nodes
       shell: |
