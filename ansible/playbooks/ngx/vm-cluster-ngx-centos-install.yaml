@@ -1,5 +1,5 @@
 ---
-- name: Update all nodes install vim, net-tools, disable swap & firewall, install docker helper packages
+- name: Install NGINX+ on Centos
   hosts: testenv
   vars_files:
     - /tmp/testenvansiblevars
@@ -10,7 +10,8 @@
         sudo systemctl stop firewalld
       args:
         executable: /bin/bash
-    - name: Install vim, net-tools, curl, wget, gnupg, ca-certificates, epel-release and httpd-tools
+      ignore_errors: True
+    - name: Install vim, net-tools, curl, wget, gnupg, ca-certificates, epel-release, bash-completion and httpd-tools
       become: yes
       yum:
         name:
@@ -22,6 +23,7 @@
           - ca-certificates
           - epel-release
           - httpd-tools
+          - bash-completion
         state: present
         expire-cache: yes
     - name: Create nginx directory (for nginx.repo cert)
@@ -45,28 +47,12 @@
       become: yes
       yum: 
         name:
-          - nginx-plus
-          - app-protect
+          - nginx-plus-25-2.el7.ngx.x86_64
+          - nginx-plus-module-appprotect-25+3.760.0-1.el7.ngx.x86_64
           - app-protect-attack-signatures
-          - nginx-plus-module-modsecurity
+          - nginx-plus-module-modsecurity-25+1.0.2-3.el7.ngx.x86_64
         state: present
         expire-cache: yes
-    - name: Get state of /etc/nginx/conf.d/default.conf
-      stat: path=/etc/nginx/conf.d/default.conf
-      register: ngx_default_conf
-    - name: Rename /etc/nginx/conf.d/default.conf to remove it from nginx processing
-      command: sudo mv /etc/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf.bak
-      when: ngx_default_conf.stat.exists
-    - name: Copy beverages.conf to /etc/nginx/conf.d/
-      become: yes
-      copy:
-        src: beverages.conf
-        dest: /etc/nginx/conf.d/
-    - name: Copy main_nginx.conf to /etc/nginx/conf.d/
-      become: yes
-      copy:
-        src: main_nginx.conf
-        dest: /etc/nginx/conf.d/
     - name: Enable nginx.service
       command: sudo systemctl enable nginx.service
     - name: Enable nginx

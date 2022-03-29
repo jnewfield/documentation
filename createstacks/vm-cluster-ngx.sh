@@ -1,18 +1,30 @@
 #!/bin/bash
 # vars
-MOS=ubuntu-20.04
+OS=centos-7
 # --os {amazonlinux-2,centos-7,centos-8,debian-9,debian-10,debian-11,freebsd-13,oracle-7,redhat-7,redhat-8,ubuntu-16.04,ubuntu-18.04,ubuntu-20.04}
-MHOSTS=2
-# Login
-az login
-echo Initiating testenv command...
-testenv stack create vm-cluster \
-	--cloud vsphere \
-	--os $MOS \
-	--num-hosts $MHOSTS \
-	--vsphere-host-disk-size 20 \
-	--tag cli \
-	--tag master
+CLOUD=vsphere
+# vsphere or aws
+HOSTS=1
+if [ $CLOUD == "aws" ]; then
+	# Login
+	az login
+        echo Initiating testenv command for aws stack...
+        testenv stack create vm-cluster \
+                --cloud $CLOUD \
+                --os $OS \
+                --num-hosts $HOSTS \
+                --tag cli \
+                --tag nginx
+else
+	echo Initiating testenv command for vsphere stack...
+	testenv stack create vm-cluster \
+        	--cloud $CLOUD \
+        	--os $OS \
+        	--num-hosts $HOSTS \
+        	--vsphere-host-disk-size 20 \
+        	--tag cli \
+        	--tag nginx
+fi
 # Get stackid
 stackid=`echo $(cat ~/.testenv/latest_stack_id | tr -d '"')`
 # Capture stack symbols
@@ -27,9 +39,9 @@ do
         ((i=i+1))
 done
 # Create hosts file for ansible use
-cat <<EOF | tee ~/.testenv/my/ansible/playbooks/hosts.yaml
+cat <<EOF | tee /tmp/hosts.yaml
 # Hosts from script ~/.testenv/my/createstacks/vm-cluster-ngx.sh
-vmclusterngx:
+testenv:
   hosts:
 EOF
 # Create hosts and username variables for for ansible use
@@ -41,7 +53,7 @@ i=1
 for host in $hostips
 do
 	echo "host$i: $host" >> /tmp/testenvansiblevars;
-	cat <<EOF | tee -a ~/.testenv/my/ansible/playbooks/hosts.yaml
+	cat <<EOF | tee -a /tmp/hosts.yaml
     host$i:
       ansible_host: "{{ host$i }}"
       ansible_user: "{{ user }}"
@@ -50,7 +62,12 @@ EOF
 done
 echo
 # Run ansible playbook to install NGINX+
-ansible-playbook ~/.testenv/my/ansible/playbooks/ngx/vm-cluster-ngx-install.yaml
+if [[ $OS == *"centos"* ]]; then
+	ansible-playbook ~/.testenv/my/ansible/playbooks/ngx/vm-cluster-ngx-centos-install.yaml
+else
+	ansible-playbook ~/.testenv/my/ansible/playbooks/ngx/vm-cluster-ngx-install.yaml
+fi
+ansible-playbook ~/.testenv/my/ansible/playbooks/ngx/vm-cluster-ngx-implement-beverages.yaml
 # Print symbols
 echo -e "* Stack-ID:\n$stackid\n"
 echo -e "* Host IPs:"

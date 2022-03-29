@@ -4,6 +4,3 @@ testenv:
     host1:
       ansible_host: "{{ host1 }}"
       ansible_user: "{{ user }}"
-    host2:
-      ansible_host: "{{ host2 }}"
-      ansible_user: "{{ user }}"

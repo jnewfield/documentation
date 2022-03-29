@@ -1,57 +1,52 @@
 #!/bin/bash
 # vars
-MOS=ubuntu-20.04
-WOS=ubuntu-20.04
+OS=ubuntu-20.04
 # --os {amazonlinux-2,centos-7,centos-8,debian-9,debian-10,debian-11,freebsd-13,oracle-7,redhat-7,redhat-8,ubuntu-16.04,ubuntu-18.04,ubuntu-20.04}
-MHOSTS=1
-WHOSTS=2
+HOSTS=3
 # Login
 az login
 echo Initiating testenv command...
 testenv stack create vm-cluster \
 	--cloud vsphere \
-	--os $MOS \
-	--num-hosts $MHOSTS \
-	--vsphere-host-disk-size 80 \
+	--os $OS \
+	--num-hosts $HOSTS \
+	--vsphere-host-disk-size 40 \
 	--tag cli \
-	--tag master
+	--tag kic
 # Get stackid
-stackid1=`echo $(cat ~/.testenv/latest_stack_id | tr -d '"')`
-testenv stack create vm-cluster \
-	--cloud vsphere \
-	--os $WOS \
-	--num-hosts $WHOSTS \
-	--vsphere-host-disk-size 20 \
-	--tag cli \
-	--tag workers
-# Get stackid
-stackid2=`echo $(cat ~/.testenv/latest_stack_id | tr -d '"')`
-# Capture stack symbols1
-stacksymbols1=`testenv stack show symbols $stackid1`
-# Capture vm1 ip
-hostips1=`jq '.host_ips[]' <<< $stacksymbols1 | tr -d '"'`
-vmusername1=`jq '.host_ssh_username' <<< $stacksymbols1 | tr -d '"'`
+stackid=`echo $(cat ~/.testenv/latest_stack_id | tr -d '"')`
+# Capture stack symbols
+stacksymbols=`testenv stack show symbols $stackid`
+# Capture vm ips
+hostips=`jq '.host_ips[]' <<< $stacksymbols | tr -d '"'`
+vmusername=`jq '.host_ssh_username' <<< $stacksymbols | tr -d '"'`
 i=1
-for host in $hostips1
+for host in $hostips
 do
 	eval "host$i=$host"
         ((i=i+1))
 done
-# Store stack symbols2
-stacksymbols2=`testenv stack show symbols $stackid2`
-hostips2=`jq '.host_ips[]' <<< $stacksymbols2 | tr -d '"'`
-vmusername2=`jq '.host_ssh_username' <<< $stacksymbols2 | tr -d '"'`
-# Create host variables for ansible use
-cat <<EOF | tee /tmp/vmclusterkicvars
-# vars from script ~/.testenv/my/vm-cluster.sh
-user1: $vmusername1
-user2: $vmusername2
-host1: $host1
+## ansible for kic nodes
+# Create kic hosts file for ansible use
+cat <<EOF | tee /tmp/hosts.yaml
+# kic hosts from script ~/.testenv/my/createstacks/vm-cluster-kic.sh
+testenv:
+  hosts:
 EOF
-i=2
-for host in $hostips2
+# Create kic hosts and username variables for ansible use
+cat <<EOF | tee /tmp/testenvansiblevars
+# kic vars from script ~/.testenv/my/createstacks/vm-cluster-kic.sh
+user: $vmusername
+EOF
+i=1
+for host in $hostips
 do
-	echo "host$i: $host" >> /tmp/vmclusterkicvars
+        echo "host$i: $host" >> /tmp/testenvansiblevars;
+        cat <<EOF | tee -a /tmp/hosts.yaml
+    host$i:
+      ansible_host: "{{ host$i }}"
+      ansible_user: "{{ user }}"
+EOF
         ((i=i+1))
 done
 echo
@@ -59,21 +54,12 @@ echo
 ansible-playbook ~/.testenv/my/ansible/playbooks/kic/vm-cluster-kic-install-k8s.yaml
 ansible-playbook ~/.testenv/my/ansible/playbooks/kic/vm-cluster-kic-deploy-kic.yaml
 # Print symbols
-echo -e "* Stack-ID1:\n$stackid1\n"
-echo -e "* Host IPs VM1:"
+echo -e "* Stack-ID:\n$stackid\n"
+echo -e "* Host IPs VM:"
 i=1
-for host in $hostips1
+for host in $hostips
 do
-        echo -e "ssh $vmusername1@$host"
-        ((i=i+1))
-done
-echo
-echo -e "* Stack-ID2:\n$stackid2\n"
-echo -e "* Host IPs VM2:"
-i=2
-for host in $hostips2
-do
-        echo -e "ssh $vmusername2@$host"
+        echo -e "ssh $vmusername@$host"
         ((i=i+1))
 done
 echo

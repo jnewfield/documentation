@@ -1,9 +1,9 @@
 ---
 - name: Deploy NGINX, Inc Kubrernetes Ingress Controller
-  hosts: vmclusterkicnodes[0]
+  hosts: testenv[0]
   vars_files:
     - ~/.ansible/group_vars/ngxvars
-    - /tmp/vmclusterkicvars
+    - /tmp/testenvansiblevars
   tasks:
     - name: Download Ingress Controller
       shell: |
@@ -64,7 +64,7 @@
             - name: default
               protocol: layer2
               addresses:
-              - 10.155.139.27-10.155.139.29
+              - {{ metallb_ip_range }}
         EOF
         kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.10.3/manifests/namespace.yaml
         kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.10.3/manifests/metallb.yaml
