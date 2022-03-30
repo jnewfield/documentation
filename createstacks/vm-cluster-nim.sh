@@ -5,28 +5,36 @@ NGXOS=ubuntu-20.04
 # --os {amazonlinux-2,centos-7,centos-8,debian-9,debian-10,debian-11,freebsd-13,oracle-7,redhat-7,redhat-8,ubuntu-16.04,ubuntu-18.04,ubuntu-20.04}
 NIMHOSTS=1
 NGXHOSTS=1 
-# Login
-az login
+CLOUD=vsphere
+# vsphere or aws
+if [ $CLOUD == aws ]; then
+	# Login
+	az login
+fi
 echo Initiating testenv command...
 #testenv stack create vm-cluster --cloud vsphere --num-hosts 1 --os centos-7 --vsphere-host-disk-size 80 --tag NIM --tag cli
 # Create stack 1
 testenv stack create vm-cluster \
-	--cloud vsphere \
+	--cloud $CLOUD \
 	--os $NIMOS \
 	--num-hosts $NIMHOSTS \
 	--vsphere-host-disk-size 100 \
 	--tag cli \
 	--tag nim
+	--tag $NIMOS
+	--tag $CLOUD
 # Get stackid
 stackid1=`echo $(cat ~/.testenv/latest_stack_id | tr -d '"')`
 # Create stack 2
 testenv stack create vm-cluster \
-	--cloud vsphere \
+	--cloud $CLOUD \
 	--os $NGXOS \
 	--num-hosts $NGXHOSTS \
 	--vsphere-host-disk-size 40 \
 	--tag cli \
-	--tag nginx
+	--tag nginx-nim
+        --tag $NGXOS
+        --tag $CLOUD
 # Get stackid
 stackid2=`echo $(cat ~/.testenv/latest_stack_id | tr -d '"')`
 # Capture stack symbols1

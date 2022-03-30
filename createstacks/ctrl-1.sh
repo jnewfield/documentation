@@ -1,16 +1,19 @@
 #!/bin/bash
 CTRLOS=ubuntu-20.04
 NGXOS=ubuntu-20.04
-RELEASE=release-3-21
+RELEASE=release-3-20
 NUMCTRL=1
 NUMNGX=1
+CLOUD=vphere
 HA=0
 # --os {amazonlinux-2,centos-7,centos-8,debian-9,debian-10,debian-11,freebsd-13,oracle-7,redhat-7,redhat-8,ubuntu-16.04,ubuntu-18.04,ubuntu-20.04}
-# Login
-az login
+if [ $CLOUD == aws ]; then
+	# Login
+	az login
+fi
 echo Initiating testenv command...
 testenv stack create nginx-ctrl \
-	--cloud vsphere \
+	--cloud $CLOUD \
 	--ctrl-os $CTRLOS \
 	--ctrl-tarball-url $RELEASE \
 	--datapath-os $NGXOS \
@@ -22,6 +25,9 @@ testenv stack create nginx-ctrl \
 	--enable-features AppSec \
 	--tag general
 	--tag cli
+	- tag $RELEASE
+	- tag cloud$CLOUD
+	- tag $CTRLOS
 # Get stackid
 stackid=`echo $(cat ~/.testenv/latest_stack_id | tr -d '"')`
 # Store stack symbols

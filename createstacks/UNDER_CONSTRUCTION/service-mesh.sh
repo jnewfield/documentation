@@ -1,15 +1,22 @@
 #!/bin/bash
-# Login
-# --os {amazonlinux-2,centos-7,centos-8,debian-9,debian-10,debian-11,freebsd-13,oracle-7,redhat-7,redhat-8,ubuntu-16.04,ubuntu-18.04,ubuntu-20.04}
-az login
+CTLRNODES=1
+WRKNODES=2
+CLOUD=vsphere
+# vsphere or aws
+if [ $CLOUD == aws ]; then
+	# Login
+	az login
+fi
 echo Initiating testenv command...
-testenv stack create vm-cluster \
-	--cloud vsphere \
-#	--kubernetes-version v1.16.8 \
-	--num-control-nodes 1 \
-	--num-worker-nodes 2 \
+testenv stack create service-mesh \
+	--cloud $CLOUD \
+ 	--kubernetes-version v1.16.8 \
+	--num-control-nodes $CTLRNODES \
+	--num-worker-nodes $WRKNODES \
 	--vsphere-control-node-disk-size 60 \
 	--tag cli
+	--tag servicemesh
+	--tag $CLOUD
 # Get stackid
 stackid=`echo $(cat ~/.testenv/latest_stack_id | tr -d '"')`
 # Store stack symbols

@@ -1,4 +1,6 @@
 #!/bin/bash
+CLOUD=vsphere
+# vsphere or aws
 # Get ip address to allow to aws stack
 read -p "Internet facing client ip address to allow to aws stack (google 'what's my ip'): " ip
 # Validate ip is an ip address
@@ -10,13 +12,17 @@ fi
 # Logon to aws
 #echo Logon to aws to activate aws profile
 #aws sso login
-# Logon to azure
-az login
+if [ $CLOUD == aws ]; then
+	# Logon to azure
+	az login
+fi
 # Run create aws stack command
 echo Creating stack...
 testenv stack create windows-ad \
-	--cloud vsphere \
+	--cloud $CLOUD \
 	--tag cli
+	--tag $CLOUD
+	--tag ActiveDirectory
 # Extract newly created stackid
 stackid=`echo $(cat ~/.testenv/latest_stack_id | tr -d '"')`
 # Store stack symbols

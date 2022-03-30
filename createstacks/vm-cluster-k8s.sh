@@ -16,7 +16,6 @@ testenv stack create vm-cluster \
 	--num-hosts $HOSTS \
 	--vsphere-host-disk-size 40 \
 	--tag cli \
-	--tag kic
 	--tag k8s
 	--tag $OS
 	--tag $CLOUD
@@ -33,16 +32,16 @@ do
 	eval "host$i=$host"
         ((i=i+1))
 done
-## ansible for kic nodes
-# Create kic hosts file for ansible use
+## ansible for k8s nodes
+# Create k8s hosts file for ansible use
 cat <<EOF | tee /tmp/hosts.yaml
-# kic hosts from script ~/.testenv/my/createstacks/vm-cluster-kic.sh
+# kic hosts from script ~/.testenv/my/createstacks/vm-cluster-k8s.sh
 testenv:
   hosts:
 EOF
-# Create kic hosts and username variables for ansible use
+# Create k8s hosts and username variables for ansible use
 cat <<EOF | tee /tmp/testenvansiblevars
-# kic vars from script ~/.testenv/my/createstacks/vm-cluster-kic.sh
+# kic vars from script ~/.testenv/my/createstacks/vm-cluster-k8s.sh
 user: $vmusername
 EOF
 i=1
@@ -57,9 +56,8 @@ EOF
         ((i=i+1))
 done
 echo
-# Run ansible playbook to install kubernetes and ingress controller
+# Run ansible playbook to install Kubernetes cluster
 ansible-playbook ~/.testenv/my/ansible/playbooks/k8s/vm-cluster-k8s.yaml
-ansible-playbook ~/.testenv/my/ansible/playbooks/kic/vm-cluster-kic-deploy-kic.yaml
 # Print symbols
 echo -e "* Stack-ID:\n$stackid\n"
 echo -e "* Host IPs VM:"

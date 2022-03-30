@@ -1,10 +1,10 @@
 #!/bin/bash
 # vars
-OS=centos-7
+OS=ubuntu-20.04
 # --os {amazonlinux-2,centos-7,centos-8,debian-9,debian-10,debian-11,freebsd-13,oracle-7,redhat-7,redhat-8,ubuntu-16.04,ubuntu-18.04,ubuntu-20.04}
+HOSTS=2
 CLOUD=vsphere
 # vsphere or aws
-HOSTS=1
 if [ $CLOUD == "aws" ]; then
 	# Login
 	az login
@@ -15,6 +15,8 @@ if [ $CLOUD == "aws" ]; then
                 --num-hosts $HOSTS \
                 --tag cli \
                 --tag nginx
+		--tag $OS
+		--tag cloud-$CLOUD
 else
 	echo Initiating testenv command for vsphere stack...
 	testenv stack create vm-cluster \
@@ -24,6 +26,8 @@ else
         	--vsphere-host-disk-size 20 \
         	--tag cli \
         	--tag nginx
+                --tag $OS
+                --tag cloud-$CLOUD
 fi
 # Get stackid
 stackid=`echo $(cat ~/.testenv/latest_stack_id | tr -d '"')`
@@ -65,7 +69,7 @@ echo
 if [[ $OS == *"centos"* ]]; then
 	ansible-playbook ~/.testenv/my/ansible/playbooks/ngx/vm-cluster-ngx-centos-install.yaml
 else
-	ansible-playbook ~/.testenv/my/ansible/playbooks/ngx/vm-cluster-ngx-install.yaml
+	ansible-playbook ~/.testenv/my/ansible/playbooks/ngx/vm-cluster-ngx-ubuntu-install.yaml
 fi
 ansible-playbook ~/.testenv/my/ansible/playbooks/ngx/vm-cluster-ngx-implement-beverages.yaml
 # Print symbols

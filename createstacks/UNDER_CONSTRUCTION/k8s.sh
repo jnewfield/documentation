@@ -1,10 +1,15 @@
 #!/bin/bash
-# Login
-az login
+# Create a Kubernetes Cluster
+CLOUD=vsphere
+# vsphere or aws
+if [ $CLOUD == aws ]; then
+	# Login to azure
+	az login
+fi
 echo Initiating testenv command...
-testenv stack create vm-cluster \
-	--cloud vsphere \
- 	--kubernetes-version v1.16.8 \
+testenv stack create k8s \
+	--cloud $CLOUD \
+#	--kubernetes-version v1.16.8 \
 	--num-control-nodes 1 \
 	--num-worker-nodes 2 \
 	--vsphere-control-node-disk-size 60 \
