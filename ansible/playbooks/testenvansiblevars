@@ -1,0 +1,3 @@
+# vars from script ~/.testenv/my/createstacks/vm-cluster-ngx.sh
+user: jake
+host1: 10.155.139.5

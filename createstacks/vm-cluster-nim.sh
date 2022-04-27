@@ -20,8 +20,8 @@ testenv stack create vm-cluster \
 	--num-hosts $NIMHOSTS \
 	--vsphere-host-disk-size 100 \
 	--tag cli \
-	--tag nim
-	--tag $NIMOS
+	--tag nim \
+	--tag $NIMOS \
 	--tag $CLOUD
 # Get stackid
 stackid1=`echo $(cat ~/.testenv/latest_stack_id | tr -d '"')`

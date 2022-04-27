@@ -1,11 +1,11 @@
 #!/bin/bash
-CTRLOS=ubuntu-20.04
-NGXOS=ubuntu-20.04
-RELEASE=release-3-20
-NUMCTRL=1
-NUMNGX=1
-CLOUD=vphere
-HA=0
+CTRLOS=ubuntu-20.04;
+NGXOS=ubuntu-20.04;
+RELEASE=release-3-20;
+NUMCTRL=1;
+NUMNGX=3;
+CLOUD=vsphere;
+HA=1;
 # --os {amazonlinux-2,centos-7,centos-8,debian-9,debian-10,debian-11,freebsd-13,oracle-7,redhat-7,redhat-8,ubuntu-16.04,ubuntu-18.04,ubuntu-20.04}
 if [ $CLOUD == aws ]; then
 	# Login
@@ -20,14 +20,15 @@ testenv stack create nginx-ctrl \
 	--enable-multinode-ctrl true \
 	--nginxplus-version 25 \
 	--num-ctrl-hosts $NUMCTRL \
-	--num-datapath-ha-ips $HA \
+	--num-datapath-ha-ips $HA  \
 	--num-datapaths $NUMNGX \
 	--enable-features AppSec \
-	--tag general
-	--tag cli
-	- tag $RELEASE
-	- tag cloud$CLOUD
-	- tag $CTRLOS
+	--tag general \
+	--tag cli \
+	--tag $RELEASE \
+	--tag cloud_$CLOUD \
+	--tag ctrl_$CTRLOS_$NUMCTRL
+	--tag ngx_$NGXOS_$NUMNGX
 # Get stackid
 stackid=`echo $(cat ~/.testenv/latest_stack_id | tr -d '"')`
 # Store stack symbols
