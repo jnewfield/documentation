@@ -1,7 +1,7 @@
 ---
 backend:
   url: https://testenv-backend.westus2.cloudapp.azure.com/api/v1
-  token: 1874ed14e77584f2d95cfcf525da529c1a480368
+  token: 6b93996fd09c1b4b0258a7d32320087dc5a48779
 
 vault:
   token: null

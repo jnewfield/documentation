@@ -1,7 +1,7 @@
 #!/bin/bash
 CTRLOS=ubuntu-20.04;
 NGXOS=ubuntu-20.04;
-RELEASE=release-3-20;
+RELEASE=release-3-22;
 NUMCTRL=1;
 NUMNGX=3;
 CLOUD=vsphere;
