@@ -1,0 +1,73 @@
+---
+- name: Deploy NGINX, Inc Kubrernetes Ingress Controller
+  hosts: testenv[0]
+  vars_files:
+    - ~/.ansible/group_vars/ngxvars
+    - /tmp/testenvansiblevars
+  tasks:
+    - name: Download Ingress Controller
+      shell: |
+        git clone https://github.com/nginxinc/kubernetes-ingress/
+        cd ~/kubernetes-ingress
+        git checkout v{{ kic_ver }}
+    - name: Copy nginx.repo.jwt to kubernetes master node
+      copy:
+        src: ~/Documents/NGINX/NGINX-Trials/NGINXPlus/ValidCert/nginx-repo.jwt
+        dest: ~/kubernetes-ingress/nginx-repo.jwt
+    - name: Copy custom inginx-plus-ingress manifest to kubernetes master node
+      copy:
+        src: ~/Documents/NGINX/NGINX-Kubernetes-Ingress/manifests/custom-nginx-plus-ingress.yaml
+        dest: ~/kubernetes-ingress/deployments/deployment/
+    - name: Install NGINX, Inc Kubrernetes Ingress Controller with manifests
+      shell: |
+        cd ~/kubernetes-ingress/deployments
+        git checkout v{{ kic_ver }}
+        kubectl apply -f common/ns-and-sa.yaml
+        kubectl apply -f rbac/rbac.yaml
+        kubectl apply -f rbac/ap-rbac.yaml
+        kubectl apply -f rbac/apdos-rbac.yaml
+        kubectl apply -f common/default-server-secret.yaml
+        kubectl apply -f common/nginx-config.yaml
+        kubectl apply -f common/ingress-class.yaml
+        kubectl apply -f common/crds/k8s.nginx.org_virtualservers.yaml
+        kubectl apply -f common/crds/k8s.nginx.org_virtualserverroutes.yaml
+        kubectl apply -f common/crds/k8s.nginx.org_transportservers.yaml
+        kubectl apply -f common/crds/k8s.nginx.org_policies.yaml
+        kubectl apply -f common/crds/k8s.nginx.org_globalconfigurations.yaml
+        kubectl apply -f common/crds/appprotect.f5.com_aplogconfs.yaml
+        kubectl apply -f common/crds/appprotect.f5.com_appolicies.yaml
+        kubectl apply -f common/crds/appprotect.f5.com_apusersigs.yaml
+        kubectl apply -f common/crds/appprotectdos.f5.com_apdoslogconfs.yaml
+        kubectl apply -f common/crds/appprotectdos.f5.com_apdospolicy.yaml
+        kubectl apply -f common/crds/appprotectdos.f5.com_dosprotectedresources.yaml
+    - name: Create the jwt docker-registry secret to access the NGINX priate registry
+      shell: kubectl create secret docker-registry jwtregcred --docker-server=private-registry.nginx.com --docker-username=`cat ~/kubernetes-ingress/nginx-repo.jwt` --docker-password=none -n nginx-ingress
+    - name: Deploy an Ingress Controller in the nginx-ingress namespace
+      shell: |
+        cd ~/kubernetes-ingress/deployments
+        git checkout v{{ kic_ver }}
+        kubectl apply -f deployment/custom-nginx-plus-ingress.yaml
+    - name: Deploy metallb
+      shell: |
+        cd ~/kubernetes-ingress/deployments
+        git checkout v{{ kic_ver }}
+        mkdir -p configmap
+        cat <<EOF | sudo tee ./configmap/metallb-config.yaml
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          namespace: metallb-system
+          name: config
+        data:
+          config: |
+            address-pools:
+            - name: default
+              protocol: layer2
+              addresses:
+              - {{ metallb_ip_range }}
+        EOF
+        kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.10.3/manifests/namespace.yaml
+        kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.10.3/manifests/metallb.yaml
+        kubectl apply -f configmap/metallb-config.yaml
+        kubectl apply -f service/loadbalancer.yaml
+
