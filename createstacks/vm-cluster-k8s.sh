@@ -16,8 +16,8 @@ testenv stack create vm-cluster \
 	--num-hosts $HOSTS \
 	--vsphere-host-disk-size 40 \
 	--tag cli \
-	--tag k8s
-	--tag $OS
+	--tag k8s \
+	--tag $OS \
 	--tag $CLOUD
 # Get stackid
 stackid=`echo $(cat ~/.testenv/latest_stack_id | tr -d '"')`

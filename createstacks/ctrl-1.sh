@@ -1,11 +1,12 @@
 #!/bin/bash
 CTRLOS=ubuntu-20.04;
 NGXOS=ubuntu-20.04;
-RELEASE=release-3-22;
+RELEASE=https://nginxdevopssvcs.blob.core.windows.net/cylon-indigo-generic-release/controller-packages/release-3-22/controller-installer-3.22.3.tar.gz
 NUMCTRL=1;
+MULTINODE=false;
 NUMNGX=3;
 CLOUD=vsphere;
-HA=1;
+HA=0;
 # --os {amazonlinux-2,centos-7,centos-8,debian-9,debian-10,debian-11,freebsd-13,oracle-7,redhat-7,redhat-8,ubuntu-16.04,ubuntu-18.04,ubuntu-20.04}
 if [ $CLOUD == aws ]; then
 	# Login
@@ -17,7 +18,7 @@ testenv stack create nginx-ctrl \
 	--ctrl-os $CTRLOS \
 	--ctrl-tarball-url $RELEASE \
 	--datapath-os $NGXOS \
-	--enable-multinode-ctrl true \
+	--enable-multinode-ctrl $MULTINODE \
 	--nginxplus-version 25 \
 	--num-ctrl-hosts $NUMCTRL \
 	--num-datapath-ha-ips $HA  \
@@ -25,9 +26,9 @@ testenv stack create nginx-ctrl \
 	--enable-features AppSec \
 	--tag general \
 	--tag cli \
-	--tag $RELEASE \
+#	--tag $RELEASE \
 	--tag cloud_$CLOUD \
-	--tag ctrl_$CTRLOS_$NUMCTRL
+	--tag ctrl_$CTRLOS_$NUMCTRL \
 	--tag ngx_$NGXOS_$NUMNGX
 # Get stackid
 stackid=`echo $(cat ~/.testenv/latest_stack_id | tr -d '"')`
