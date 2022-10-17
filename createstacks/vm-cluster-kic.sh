@@ -59,7 +59,7 @@ done
 echo
 # Run ansible playbook to install kubernetes and ingress controller
 ansible-playbook ~/.testenv/my/ansible/playbooks/k8s/vm-cluster-k8s.yaml
-ansible-playbook ~/.testenv/my/ansible/playbooks/kic/vm-cluster-kic-deploy-kic.yaml
+ansible-playbook ~/.testenv/my/ansible/playbooks/kic/vm-cluster-kic.yaml
 # Print symbols
 echo -e "* Stack-ID:\n$stackid\n"
 echo -e "* Host IPs VM:"
