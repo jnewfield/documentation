@@ -1,0 +1,12 @@
+HTTP/2 200 
+server: nginx
+date: Wed, 01 Feb 2023 20:02:20 GMT
+content-type: application/json; charset=UTF-8
+content-length: 676
+x-request-id: ae5c5879-98ff-4abe-8f09-c64375374d30
+x-frame-options: sameorigin
+x-content-type-options: nosniff
+cache-control: no-cache, no-store, must-revalidate
+pragma: no-cache
+nginx-management-suite-auth: Basic
+

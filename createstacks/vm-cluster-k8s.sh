@@ -1,4 +1,5 @@
 #!/bin/bash
+# Create k8s stack
 # vars
 OS=ubuntu-20.04
 # --os {amazonlinux-2,centos-7,centos-8,debian-9,debian-10,debian-11,freebsd-13,oracle-7,redhat-7,redhat-8,ubuntu-16.04,ubuntu-18.04,ubuntu-20.04}
