@@ -4,10 +4,11 @@ CTRLOS=centos-7;
 #CTRLOS=redhat-7;
 # --os {amazonlinux-2,centos-7,centos-8,debian-9,debian-10,debian-11,freebsd-13,oracle-7,redhat-7,redhat-8,ubuntu-16.04,ubuntu-18.04,ubuntu-20.04}
 NGXOS=ubuntu-20.04;
+#RELEASE=https://nginxdevopssvcs.blob.core.windows.net/cylon-indigo-generic-release/controller-packages/release-3-14/controller-installer-3.14.0.tar.gz
 #RELEASE=https://nginxdevopssvcs.blob.core.windows.net/cylon-indigo-generic-release/controller-packages/release-3-22/controller-installer-3.22.1.tar.gz
 #DO_NOT_USE RELEASE=https://nginxdevopssvcs.blob.core.windows.net/cylon-indigo-generic-release/controller-packages/release-3-22/controller-installer-3.22.2.tar.gz
-RELEASE=https://nginxdevopssvcs.blob.core.windows.net/cylon-indigo-generic-release/controller-packages/release-3-22/controller-installer-3.22.3.tar.gz
-#RELEASE=https://nginxdevopssvcs.blob.core.windows.net/cylon-indigo-generic-release/controller-packages/release-3-22/controller-installer-3.22.5.tar.gz
+#RELEASE=https://nginxdevopssvcs.blob.core.windows.net/cylon-indigo-generic-release/controller-packages/release-3-22/controller-installer-3.22.3.tar.gz
+RELEASE=https://nginxdevopssvcs.blob.core.windows.net/cylon-indigo-generic-release/controller-packages/release-3-22/controller-installer-3.22.5.tar.gz
 #RELEASE=https://nginxdevopssvcs.blob.core.windows.net/cylon-indigo-generic-release/controller-packages/release-3-22/controller-installer-3.22.6.tar.gz
 #RELEASE=https://nginxdevopssvcs.blob.core.windows.net/cylon-indigo-generic-release/controller-packages/release-3-19/apim-controller-installer-3.19.4.tar.gz
 #Next is APIM-3.19.4-P1
