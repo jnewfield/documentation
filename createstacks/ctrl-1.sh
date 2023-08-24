@@ -5,11 +5,13 @@ CTRLOS=centos-7;
 # --os {amazonlinux-2,centos-7,centos-8,debian-9,debian-10,debian-11,freebsd-13,oracle-7,redhat-7,redhat-8,ubuntu-16.04,ubuntu-18.04,ubuntu-20.04}
 NGXOS=ubuntu-20.04;
 #RELEASE=https://nginxdevopssvcs.blob.core.windows.net/cylon-indigo-generic-release/controller-packages/release-3-14/controller-installer-3.14.0.tar.gz
+#RELEASE=https://nginxdevopssvcs.blob.core.windows.net/cylon-indigo-generic-release/controller-packages/release-3-14/controller-installer-3.17.0.tar.gz
 #RELEASE=https://nginxdevopssvcs.blob.core.windows.net/cylon-indigo-generic-release/controller-packages/release-3-22/controller-installer-3.22.1.tar.gz
 #DO_NOT_USE RELEASE=https://nginxdevopssvcs.blob.core.windows.net/cylon-indigo-generic-release/controller-packages/release-3-22/controller-installer-3.22.2.tar.gz
 #RELEASE=https://nginxdevopssvcs.blob.core.windows.net/cylon-indigo-generic-release/controller-packages/release-3-22/controller-installer-3.22.3.tar.gz
-RELEASE=https://nginxdevopssvcs.blob.core.windows.net/cylon-indigo-generic-release/controller-packages/release-3-22/controller-installer-3.22.5.tar.gz
+#RELEASE=https://nginxdevopssvcs.blob.core.windows.net/cylon-indigo-generic-release/controller-packages/release-3-22/controller-installer-3.22.5.tar.gz
 #RELEASE=https://nginxdevopssvcs.blob.core.windows.net/cylon-indigo-generic-release/controller-packages/release-3-22/controller-installer-3.22.6.tar.gz
+RELEASE=https://nginxdevopssvcs.blob.core.windows.net/cylon-indigo-generic-release/controller-packages/release-3-22/controller-installer-3.22.8.tar.gz
 #RELEASE=https://nginxdevopssvcs.blob.core.windows.net/cylon-indigo-generic-release/controller-packages/release-3-19/apim-controller-installer-3.19.4.tar.gz
 #Next is APIM-3.19.4-P1
 #RELEASE=https://nginxdevopssvcs.blob.core.windows.net/cylon-indigo-generic-dev/apim-controller-packages/controller-installer/apim-release-3-19/offline-controller-installer-614098828.tar.gz
@@ -18,13 +20,16 @@ NUMCTRL=1;
 CREATEDBHOST=false;
 MULTINODE=false;
 NUMNGX=2;
+NGXPLSVER=26;
 CLOUD=vsphere;
 HA=0;
+
 #if [ $CLOUD == aws ]; then
 #	# Login
-#	az login
+# 	az login --use-device-code
 #fi
-az login
+az login --use-device-code
+
 echo Initiating testenv command...
 command="testenv stack create nginx-ctrl \
 	--cloud $CLOUD \
@@ -37,6 +42,7 @@ command="testenv stack create nginx-ctrl \
 	--num-ctrl-hosts $NUMCTRL \
 	--num-datapath-ha-ips $HA  \
 	--num-datapaths $NUMNGX \
+  --nginxplus-version $NGXPLSVER \
 	--enable-features AppSec \
 	--tag general \
 	--tag cli \
