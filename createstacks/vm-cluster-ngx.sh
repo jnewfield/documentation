@@ -1,9 +1,10 @@
 #!/bin/bash
 # vars
 #OS=ubuntu-20.04
-OS=centos-7
+OS=ubuntu-22.04
+#OS=centos-7
 # --os {amazonlinux-2,centos-7,centos-8,debian-9,debian-10,debian-11,freebsd-13,oracle-7,redhat-7,redhat-8,ubuntu-16.04,ubuntu-18.04,ubuntu-20.04}
-HOSTS=2
+HOSTS=3
 CLOUD=vsphere
 # vsphere or aws
 if [ $CLOUD == "aws" ]; then

@@ -6,39 +6,44 @@ CTRLOS=centos-7;
 NGXOS=ubuntu-20.04;
 #RELEASE=https://nginxdevopssvcs.blob.core.windows.net/cylon-indigo-generic-release/controller-packages/release-3-14/controller-installer-3.14.0.tar.gz
 #RELEASE=https://nginxdevopssvcs.blob.core.windows.net/cylon-indigo-generic-release/controller-packages/release-3-14/controller-installer-3.17.0.tar.gz
+#RELEASE=https://nginxdevopssvcs.blob.core.windows.net/cylon-indigo-generic-release/controller-packages/release-3-21/controller-installer-3.21.0.tar.gz
 #RELEASE=https://nginxdevopssvcs.blob.core.windows.net/cylon-indigo-generic-release/controller-packages/release-3-22/controller-installer-3.22.1.tar.gz
 #DO_NOT_USE RELEASE=https://nginxdevopssvcs.blob.core.windows.net/cylon-indigo-generic-release/controller-packages/release-3-22/controller-installer-3.22.2.tar.gz
 #RELEASE=https://nginxdevopssvcs.blob.core.windows.net/cylon-indigo-generic-release/controller-packages/release-3-22/controller-installer-3.22.3.tar.gz
 #RELEASE=https://nginxdevopssvcs.blob.core.windows.net/cylon-indigo-generic-release/controller-packages/release-3-22/controller-installer-3.22.5.tar.gz
 #RELEASE=https://nginxdevopssvcs.blob.core.windows.net/cylon-indigo-generic-release/controller-packages/release-3-22/controller-installer-3.22.6.tar.gz
-RELEASE=https://nginxdevopssvcs.blob.core.windows.net/cylon-indigo-generic-release/controller-packages/release-3-22/controller-installer-3.22.8.tar.gz
+#RELEASE=https://nginxdevopssvcs.blob.core.windows.net/cylon-indigo-generic-release/controller-packages/release-3-22/controller-installer-3.22.8.tar.gz
 #RELEASE=https://nginxdevopssvcs.blob.core.windows.net/cylon-indigo-generic-release/controller-packages/release-3-19/apim-controller-installer-3.19.4.tar.gz
+#RELEASE=https://nginxdevopssvcs.blob.core.windows.net/cylon-indigo-generic-release/controller-packages/release-3-19/apim-controller-installer-3.19.5.tar.gz
+RELEASE=https://nginxdevopssvcs.blob.core.windows.net/cylon-indigo-generic-release/controller-packages/release-3-19/apim-controller-installer-3.19.6.tar.gz
 #Next is APIM-3.19.4-P1
 #RELEASE=https://nginxdevopssvcs.blob.core.windows.net/cylon-indigo-generic-dev/apim-controller-packages/controller-installer/apim-release-3-19/offline-controller-installer-614098828.tar.gz
 #RELEASE=https://nginxdevopssvcs.blob.core.windows.net/cylon-indigo-generic-release/controller-packages/release-3-19/apim-controller-installer-3.19.5.tar.gz
-NUMCTRL=1;
+NUMCTRL=3;
 CREATEDBHOST=false;
-MULTINODE=false;
+MULTINODE=true;
 NUMNGX=2;
-NGXPLSVER=26;
+NGXPLSVER=30;
 CLOUD=vsphere;
 HA=0;
 
-#if [ $CLOUD == aws ]; then
-#	# Login
-# 	az login --use-device-code
-#fi
-az login --use-device-code
+# Add ssh id for access to gitlab repo
+ssh-add ~/.ssh/id_rsa
+
+if [ $CLOUD == aws ]; then
+ 	# Login
+  az login --use-device-code
+fi
+az login 
 
 echo Initiating testenv command...
-command="testenv stack create nginx-ctrl \
+command="testenv -d stack create nginx-ctrl \
 	--cloud $CLOUD \
   --create-db-host $CREATEDBHOST \
 	--ctrl-os $CTRLOS \
 	--ctrl-tarball-url $RELEASE \
 	--datapath-os $NGXOS \
 	--enable-multinode-ctrl $MULTINODE \
-	--nginxplus-version 25 \
 	--num-ctrl-hosts $NUMCTRL \
 	--num-datapath-ha-ips $HA  \
 	--num-datapaths $NUMNGX \
